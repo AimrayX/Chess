@@ -1,8 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <iostream>
+#include "Game.h"
 
-static const float VIEW_HEIGHT = 512;
+static const float VIEW_HEIGHT = 812;
+
+std::vector<std::vector<sf::RectangleShape> > losition{ {},{ } };
 
 void ResizeView(const sf::RenderWindow& window, sf::View& view)
 {
@@ -10,18 +13,20 @@ void ResizeView(const sf::RenderWindow& window, sf::View& view)
 	view.setSize(VIEW_HEIGHT * aspectRatio, VIEW_HEIGHT);
 }
 
-void render(sf::RenderWindow window, sf::RectangleShape board, std::vector<std::vector<sf::RectangleShape>> pos)
+void render(sf::RenderWindow& window, sf::RectangleShape board, std::vector<std::vector<sf::RectangleShape>> currentPosition)
 {
+	std::cout << "beginning of render loop" << std::endl;
 	window.clear();
 	window.draw(board);
 	std::vector< std::vector<sf::RectangleShape> >::iterator row;
 	std::vector<sf::RectangleShape>::iterator col;
-	for (row = pos.begin(); row != pos.end(); row++) {
+	for (row = currentPosition.begin(); row != currentPosition.end(); row++) {
 		for (col = row->begin(); col != row->end(); col++) {
-			window.draw(col);
+			window.draw(*col);
+			std::cout << "in the loop" << std::endl;
+			std::cout << &col << std::endl;
 		}
 	}
-	
 	window.display();
 }
 
@@ -32,11 +37,14 @@ int main()
 	sf::View view(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(VIEW_HEIGHT, VIEW_HEIGHT));
 	
 	sf::RectangleShape board(sf::Vector2f(static_cast<sf::Vector2i>(window.getSize())));
-	board.setOrigin(512/2, 512/2);
+	board.setOrigin(812/2, 812/2);
 	board.setPosition(0, 0);
 	sf::Texture boardTexture;
-	boardTexture.loadFromFile("chessBoard.jpg");
+	boardTexture.loadFromFile("chessBoard.png");
 	board.setTexture(&boardTexture);
+
+
+	Game game;
 
 	while (window.isOpen())
 	{
@@ -66,7 +74,7 @@ int main()
 
 		//render
 		window.setView(view);
-		render();
+		render(window, board, game.getCurrentPosition());
 		
 
 	}

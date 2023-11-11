@@ -12,7 +12,6 @@ public:
 	Rook(char idIn)
 	{
 		id = idIn;
-		pieceTextureFile = "rook/" + std::to_string(static_cast<short>(id));
 		generatePiece();
 	}
 
@@ -21,14 +20,7 @@ public:
 		return id;
 	}
 
-	std::string getPieceTextureFile()
-	{
-
-		return pieceTextureFile;
-	}
-
 private:
-	std::string pieceTextureFile = "rook/"+id;
 	int value = 5;
 };
 

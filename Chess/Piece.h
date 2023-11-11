@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <string>
+#include <iostream>
 
 class Piece
 {
@@ -16,12 +17,9 @@ public:
 
 	short value = 0;
 
-	void Draw(sf::RenderWindow window);
-
-	long long checkLegalMoves()
+	std::vector<std::vector<Piece>> checkLegalMoves(std::vector<std::vector<Piece>> currentPosition)
 	{
-		//check for legal moves
-		long long legalMoves = 0b00001;
+		std::vector<std::vector<Piece>> legalMoves;
 
 		return legalMoves;
 	}
@@ -30,8 +28,6 @@ public:
 	{
 		
 	}
-
-	
 	
 	sf::RectangleShape generatePiece()
 	{
@@ -78,25 +74,33 @@ public:
 		case 0:
 			positionX = 0;
 			positionY = 0;
+			break;
 		case 1:
 			positionX = 0;
 			positionY = 0;
+			break;
 		case 2:
-			positionX = 710.5;
-			positionY = 710.5;
-			x = 5;
-			y = 1;
+			positionX = 7.5f*squareSize;
+			positionY = 7.5f*squareSize;
+			x = 4;
+			y = 0;
+			break;
 		case 3:
-			positionX = 101.5;
-			positionY = 101.5;
+			positionX = 0.5f * squareSize;
+			positionY = 7.5f * squareSize;
+			x = 4;
+			y = 1;
+			break;
 		case 4:
 		case 5:
 			positionX = 0;
 			positionY = 0;
+			break;
 		case 6:
 		case 7:
 			positionX = 0;
 			positionY = 0;
+			break;
 		case 8:
 		case 9:
 		case 10:
@@ -107,26 +111,32 @@ public:
 		case 15:
 			positionX = 0;
 			positionY = 0;
+			break;
 		case 16:
 			positionX = 0;
 			positionY = 0;
+			break;
 		case 17:
 			positionX = 0;
 			positionY = 0;
+			break;
 		case 18:
 		case 19:
 			positionX = 0;
 			positionY = 0;
 			x = 5;
 			y = 2;
+			break;
 		case 20:
 		case 21:
 			positionX = 0;
 			positionY = 0;
+			break;
 		case 22:
 		case 23:
 			positionX = 0;
 			positionY = 0;
+			break;
 		case 24:
 		case 25:
 		case 26:
@@ -137,30 +147,30 @@ public:
 		case 31:
 			positionX = 0;
 			positionY = 0;
+			break;
 		}
 
-		sf::RectangleShape piece(sf::Vector2f(100, 100));
-		sf::Texture piecesTexture;
-		piece.setOrigin(originX, originY);
+		piece.setSize(sf::Vector2f(115.0f, 115.0f));
 		piece.setPosition(positionX, positionY);
 		piecesTexture.loadFromFile("pieces.png");
+		piece.setTexture(&piecesTexture);
 		
 		sf::Vector2u textureSize = piecesTexture.getSize();
 		textureSize.x /= 6;
 		textureSize.y /= 2;
 		piece.setTextureRect(sf::IntRect(textureSize.x * x, textureSize.y * y, textureSize.x, textureSize.y));
+		piece.setOrigin(piece.getSize().x/2, piece.getSize().y / 2);
 		return piece;
 	}
-	char id;
+	char id = 0;
+	sf::RectangleShape piece;
 private:
-	sf::RectangleShape body;
-	
-	float originX = 256;
-	float originY = 256;
 	float positionX = 0;
 	float positionY = 0;
 	short x = 0;
 	short y = 0;
-	
+	float squareSize = 812.0f / 8;
+	sf::Texture piecesTexture;
+	std::vector<std::pair<float, float>> legalMoves;
 };
 

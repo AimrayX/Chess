@@ -1,9 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <iostream>
+#include <cmath>
 #include "Game.h"
 
-static const float VIEW_HEIGHT = 812;
+static const int VIEW_HEIGHT = 812;
 
 std::vector<std::vector<sf::RectangleShape> > losition{ {},{ } };
 
@@ -13,18 +14,17 @@ void ResizeView(const sf::RenderWindow& window, sf::View& view)
 	view.setSize(VIEW_HEIGHT * aspectRatio, VIEW_HEIGHT);
 }
 
-void render(sf::RenderWindow& window, sf::RectangleShape board, std::vector<std::vector<sf::RectangleShape>> currentPosition)
+void render(sf::RenderWindow& window, sf::View view,sf::RectangleShape board, std::vector<std::vector<Piece>> currentPosition)
 {
-	std::cout << "beginning of render loop" << std::endl;
+	window.setView(view);
 	window.clear();
 	window.draw(board);
-	std::vector< std::vector<sf::RectangleShape> >::iterator row;
-	std::vector<sf::RectangleShape>::iterator col;
+	
+	std::vector< std::vector<Piece> >::iterator row;
+	std::vector<Piece>::iterator col;
 	for (row = currentPosition.begin(); row != currentPosition.end(); row++) {
 		for (col = row->begin(); col != row->end(); col++) {
-			window.draw(*col);
-			std::cout << "in the loop" << std::endl;
-			std::cout << &col << std::endl;
+			window.draw(col->piece);
 		}
 	}
 	window.display();
@@ -34,10 +34,10 @@ int main()
 {
 	//init Game
     sf::RenderWindow window(sf::VideoMode(VIEW_HEIGHT, VIEW_HEIGHT), "Chess", sf::Style::Close | sf::Style::Resize);
-	sf::View view(sf::Vector2f(0.0f, 0.0f), sf::Vector2f(VIEW_HEIGHT, VIEW_HEIGHT));
+	sf::View view(sf::Vector2f(VIEW_HEIGHT/2, VIEW_HEIGHT/2), sf::Vector2f(VIEW_HEIGHT, VIEW_HEIGHT));
 	
 	sf::RectangleShape board(sf::Vector2f(static_cast<sf::Vector2i>(window.getSize())));
-	board.setOrigin(812/2, 812/2);
+	board.setOrigin(0, 0);
 	board.setPosition(0, 0);
 	sf::Texture boardTexture;
 	boardTexture.loadFromFile("chessBoard.png");
@@ -45,6 +45,7 @@ int main()
 
 
 	Game game;
+	game.isDragging = false;
 
 	while (window.isOpen())
 	{
@@ -60,22 +61,21 @@ int main()
 			case sf::Event::Resized:
 				ResizeView(window, view);
 				break;
+			case sf::Event::MouseButtonReleased:
+				game.isDragging = false;
+				game.release(sf::Mouse::getPosition(window));
+				break;
 			}
+
 		}
+		
 
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			//get piece and position
-
-			//drag it
-			sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-			//player.setPosition(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+			game.move(sf::Mouse::getPosition(window), window);
 		}
-
-		//render
-		window.setView(view);
-		render(window, board, game.getCurrentPosition());
 		
+		render(window, view, board, game.getCurrentPosition());	
 
 	}
     return 0;

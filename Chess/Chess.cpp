@@ -14,18 +14,22 @@ void ResizeView(const sf::RenderWindow& window, sf::View& view)
 	view.setSize(VIEW_HEIGHT * aspectRatio, VIEW_HEIGHT);
 }
 
-void render(sf::RenderWindow& window, sf::View view,sf::RectangleShape board, std::vector<std::vector<Piece>> currentPosition)
+void render(sf::RenderWindow& window, sf::View view, std::vector<std::vector<sf::RectangleShape>> board, std::vector<Piece> pieces)
 {
-	window.setView(view);
 	window.clear();
-	window.draw(board);
+	window.setView(view);
 	
-	std::vector< std::vector<Piece> >::iterator row;
-	std::vector<Piece>::iterator col;
-	for (row = currentPosition.begin(); row != currentPosition.end(); row++) {
-		for (col = row->begin(); col != row->end(); col++) {
-			window.draw(col->piece);
+	for (int i = 0; i < 8; ++i)
+	{
+		for (int j = 0; j < 8; ++j)
+		{
+			window.draw(board[i][j]);
 		}
+	}
+
+	std::vector<Piece>::iterator col;
+	for (col = pieces.begin(); col != pieces.end(); col++) {
+		window.draw(col->piece);
 	}
 	window.display();
 }
@@ -36,16 +40,34 @@ int main()
     sf::RenderWindow window(sf::VideoMode(VIEW_HEIGHT, VIEW_HEIGHT), "Chess", sf::Style::Close | sf::Style::Resize);
 	sf::View view(sf::Vector2f(VIEW_HEIGHT/2, VIEW_HEIGHT/2), sf::Vector2f(VIEW_HEIGHT, VIEW_HEIGHT));
 	
-	sf::RectangleShape board(sf::Vector2f(static_cast<sf::Vector2i>(window.getSize())));
-	board.setOrigin(0, 0);
-	board.setPosition(0, 0);
-	sf::Texture boardTexture;
-	boardTexture.loadFromFile("chessBoard.png");
-	board.setTexture(&boardTexture);
+	float squareSize = window.getSize().x / 8.0f;
+	std::vector<std::vector<sf::RectangleShape>> board(8, std::vector<sf::RectangleShape>(8));
 
+	sf::Color customColorB(118, 74, 152, 255);
+	sf::Color customColorW(255, 250, 245, 255);
+	for (int i = 0; i < 8; ++i)
+	{
+		for (int j = 0; j < 8; ++j)
+		{
+			board[i][j].setSize(sf::Vector2f(squareSize, squareSize));
+			board[i][j].setPosition(i * squareSize + squareSize / 2.0f, j * squareSize + squareSize / 2.0f);
+			board[i][j].setOrigin(squareSize / 2.0f, squareSize / 2.0f);
 
-	Game game;
+			if ((i + j) % 2 == 0)
+			{
+				board[i][j].setFillColor(customColorW);
+			}
+			else
+			{
+				board[i][j].setFillColor(customColorB);
+			}
+		}
+	}
+
+	Game game(board);
 	game.isDragging = false;
+
+
 
 	while (window.isOpen())
 	{
@@ -63,7 +85,8 @@ int main()
 				break;
 			case sf::Event::MouseButtonReleased:
 				game.isDragging = false;
-				game.release(sf::Mouse::getPosition(window));
+				game.setter = false;
+				game.release(sf::Mouse::getPosition(window), board);
 				break;
 			}
 
@@ -75,7 +98,7 @@ int main()
 			game.move(sf::Mouse::getPosition(window), window);
 		}
 		
-		render(window, view, board, game.getCurrentPosition());	
+		render(window, view, board, game.getPieces());	
 
 	}
     return 0;

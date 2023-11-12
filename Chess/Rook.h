@@ -4,15 +4,13 @@
 class Rook : public Piece
 {
 public:
-	Rook()
+	Rook(std::pair<int, int> textureCoord, sf::RectangleShape square, std::pair<int, int> arrPosition, int x) : Piece(textureCoord, square, arrPosition)
 	{
-
-	}
-
-	Rook(char idIn)
-	{
-		id = idIn;
-		generatePiece();
+		value = 5;
+		diagonalMovement = false;
+		horsing = false;
+		linearMovement = true;
+		color = x;
 	}
 
 	char getID()
@@ -21,6 +19,6 @@ public:
 	}
 
 private:
-	int value = 5;
+	
 };
 

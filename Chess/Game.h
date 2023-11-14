@@ -12,9 +12,9 @@ class Game
 {
 public:
 	Game(std::vector<std::vector<sf::RectangleShape>> board)
-		:rw1({3, 1}, board[0][0], {0,0}, 0), rw2({1, 0}, board[4][4], { 4,4 }, 0)
+		:rb1({4, 1}, board[2][2], {2,2}, 1), rw2({4, 0}, board[4][4], { 4,4 }, 0), qw({ 1, 0 }, board[4][7], { 4,7 }, 0), qb({ 1, 1 }, board[7][7], { 7,7 }, 1)
 	{
-		alivePieces = { rw1, rw2 };
+		alivePieces = { rb1, rw2, qw, qb };
 		gBoard = board;
 	}
 
@@ -29,13 +29,9 @@ public:
 		int y = activePiece->getArrayIndex().second;
 		int x = activePiece->getArrayIndex().first;
 		result.clear();
-		//horizontal search
-		for (int i = 0; i < 8; i++)
+		//horizontal search right
+		for (int i = x+1; i < 8; i++)
 		{
-			if (i == x)
-			{
-				continue;
-			}
 			//check all pieces and see if one has the current square we are looking at
 
 			std::vector<Piece>::iterator it;
@@ -47,24 +43,65 @@ public:
 				sf::Vector2f sall = it->getCurrentSquare().getPosition();
 				if (gBoard[i][y].getPosition() == it->getCurrentSquare().getPosition())
 				{
-					std::cout << "enemy on square " << i << " " << y << std::endl;
+					std::cout << "something on square stopping :" << i << " " << y << std::endl;
 					pieceFound = true;
-					continue;
+					break;
 				}
 
 			}
-			if (!pieceFound)
+			if (pieceFound && it->color != activePiece->color)
+			{
+				result.push_back(gBoard[i][y]);
+				break;
+			}
+			else if (pieceFound && it->color == activePiece->color)
+			{
+				break;
+			}
+			else if (!pieceFound)
 			{
 				result.push_back(gBoard[i][y]);
 			}
 		}
-		//vertical search
-		for (int i = 0; i < 8; i++)
+		//horizontal search left
+		for (int i = x-1; i > -1; i--)
 		{
-			if (i == y)
+			//check all pieces and see if one has the current square we are looking at
+
+			std::vector<Piece>::iterator it;
+			bool pieceFound = false;
+			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				continue;
+
+				sf::Vector2f hall = gBoard[i][y].getPosition();
+				sf::Vector2f sall = it->getCurrentSquare().getPosition();
+				if (gBoard[i][y].getPosition() == it->getCurrentSquare().getPosition())
+				{
+					std::cout << "something on square stopping :" << i << " " << y << std::endl;
+					pieceFound = true;
+					break;
+				}
+
 			}
+			if (pieceFound && it->color != activePiece->color)
+			{
+				result.push_back(gBoard[i][y]);
+				break;
+			}
+			else if (pieceFound && it->color == activePiece->color)
+			{
+				break;
+			}
+			else if (!pieceFound)
+			{
+				result.push_back(gBoard[i][y]);
+			}
+		}
+
+
+		//vertical search down
+		for (int i = y+1; i < 8; i++)
+		{
 			//check all pieces and see if one has the current square we are looking at
 			std::vector<Piece>::iterator it;
 			bool pieceFound = false;
@@ -76,13 +113,58 @@ public:
 				sf::Vector2f sall = it->getCurrentSquare().getPosition();
 				if (gBoard[x][i].getPosition() == it->getCurrentSquare().getPosition())
 				{
-					std::cout << "enemy on square " << i << " " << y << std::endl;
+					std::cout << "something on square " << x << " " << i << std::endl;
 					pieceFound = true;
-					continue;
+					break;
 				}
 
 			}
-			if (!pieceFound)
+			if (pieceFound && it->color != activePiece->color)
+			{
+				result.push_back(gBoard[x][i]);
+				break;
+			}
+			else if (pieceFound && it->color == activePiece->color)
+			{
+				break;
+			}
+			else if (!pieceFound)
+			{
+				result.push_back(gBoard[x][i]);
+			}
+
+		}
+
+		//vertical search up
+		for (int i = y - 1; i > -1; i--)
+		{
+			//check all pieces and see if one has the current square we are looking at
+			std::vector<Piece>::iterator it;
+			bool pieceFound = false;
+			for (it = alivePieces.begin(); it != alivePieces.end() && pieceFound == false; it++)
+			{
+
+
+				sf::Vector2f hall = gBoard[x][i].getPosition();
+				sf::Vector2f sall = it->getCurrentSquare().getPosition();
+				if (gBoard[x][i].getPosition() == it->getCurrentSquare().getPosition())
+				{
+					std::cout << "something on square " << x << " " << i << std::endl;
+					pieceFound = true;
+					break;
+				}
+
+			}
+			if (pieceFound && it->color != activePiece->color)
+			{
+				result.push_back(gBoard[x][i]);
+				break;
+			}
+			else if (pieceFound && it->color == activePiece->color)
+			{
+				break;
+			}
+			else if (!pieceFound)
 			{
 				result.push_back(gBoard[x][i]);
 			}
@@ -101,42 +183,62 @@ public:
 		// and if its not friendly include that square otherwise -1 in that direction
 		// but before that check if the piece has the attribute: "Jumping=true" in that case calculate further
 		bool finished = false;
+		if (activePiece != alivePieces.end())
+		{
+			if (activePiece->diagonalMovement && activePiece->linearMovement)
+			{
+
+			}
+			else if (activePiece->diagonalMovement)
+			{
+
+			}
+			else if (activePiece->linearMovement)
+			{
+				//gives free spaces in a linear fashion until the edge of the board or before next friendly piece or with next enemy piece
+				linearSearch();
+
+			}
+			else if (activePiece->horsing)
+			{
+
+			}
+		}
 		
-		if (activePiece->diagonalMovement && activePiece->linearMovement)
-		{
-			
-		}
-		else if (activePiece->diagonalMovement)
-		{
-
-		}
-		else if (activePiece->linearMovement)
-		{
-			//gives free spaces in a linear fashion until the edge of the board
-			linearSearch();
-			
-		}
-		else if (activePiece->horsing)
-		{
-
-		}
 		
 		//compare input move and possible moves
 		std::vector<sf::RectangleShape>::iterator it;
+		contr = false;
+		
 		for (it = result.begin(); it != result.end(); it++)
 		{
-			if (it->getPosition() == goal.getPosition()) 
+			
+			std::vector<Piece>::iterator it2;
+			for (it2 = alivePieces.begin(); it2 != alivePieces.end(); it2++)
+			{
+				if (it->getPosition() == goal.getPosition() && it2->getCurrentSquare().getPosition() == goal.getPosition())
+				{
+					pieceToBeTaken = it2;
+					contr = true;
+					return 1;
+				}
+				
+			}
+			if (it->getPosition() == goal.getPosition())
 			{
 				return 1;
 			}
 		}
 		return 0;
 	}
-	
+
 	void release(sf::Vector2i mousePos, std::vector<std::vector<sf::RectangleShape>> board)
 	{
 		bool initiateNewMove = false;
 		int i=0;
+		std::vector<sf::RectangleShape>::iterator colR;
+		std::vector<std::vector<sf::RectangleShape>>::iterator rowR;
+
 		for (rowR = board.begin(); rowR != board.end() && !isDragging && !initiateNewMove; rowR++, i++)
 		{
 			int j=0;
@@ -147,17 +249,30 @@ public:
 					activePiece->piece.setPosition(posX, posY);
 					initiateNewMove = true;
 				}
-				else if (colR->getGlobalBounds().contains(sf::Vector2f(mousePos)) && isLegalMove(*colR))
+				else if (contr && !initiateNewMove && colR->getGlobalBounds().contains(sf::Vector2f(mousePos)))
+				{
+					activePiece->piece.setPosition(colR->getPosition());
+					activePiece->setCurrentSquare(*colR);
+					activePiece->setArrayIndex(i, j);
+					alivePieces.erase(pieceToBeTaken);
+					initiateNewMove = true;
+				}
+				else if (!initiateNewMove && colR->getGlobalBounds().contains(sf::Vector2f(mousePos)))
 				{
 					activePiece->piece.setPosition(colR->getPosition());
 					activePiece->setArrayIndex(i, j);
+					activePiece->setCurrentSquare(*colR);
+					initiateNewMove = true;
+
 				}
 			}
 		}
+		
 	}
 
 	void move(sf::Vector2i mousePos, const sf::RenderWindow& window)
 	{
+		std::vector<Piece>::iterator col;
 		for (col = alivePieces.begin(); col != alivePieces.end() && !isDragging; col++)
 		{
 			float dx = col->piece.getPosition().x - mousePos.x;
@@ -197,22 +312,20 @@ public:
 		//currentPosition[row][col] = rw1.Piece::generatePiece();
 	}
 	
-	Rook rw1;
+	Rook rb1;
 	Rook rw2;
-
+	Rook qw;
+	Rook qb;
+	bool contr;
 	bool isDragging;
 	bool setter;
 	std::vector<sf::RectangleShape> result;
 
 private:
 	std::vector<std::vector<sf::RectangleShape>> gBoard;
-
 	std::vector<Piece>::iterator activePiece;
 	std::vector<Piece> alivePieces;
-	std::vector<Piece>::iterator col;
-	std::vector<sf::RectangleShape>::iterator colR;
-	std::vector<std::vector<sf::RectangleShape>>::iterator rowR;
-
+	std::vector<Piece>::iterator pieceToBeTaken;
 	float dx = 0.0f;
 	float dy = 0.0f;
 	float distance = 0.0f;

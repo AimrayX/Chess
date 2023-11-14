@@ -6,13 +6,13 @@
 class Piece
 {
 public:
-	Piece(std::pair<int, int> textureCoord, sf::RectangleShape square, std::pair<int, int> arrPosition)
+	Piece(std::pair<int, int> textureCoord, std::vector<std::vector<sf::RectangleShape>> board, std::pair<int, int> arrPosition)
 	{
 		arrayIndex = arrPosition;
-		currentSquare = square;
+		currentSquare = board[arrPosition.first][arrPosition.second];
 		piece.setSize(sf::Vector2f(115.0f, 115.0f));
 		piece.setOrigin(piece.getSize().x / 2, piece.getSize().y / 2);
-		piece.setPosition(square.getPosition());
+		piece.setPosition(currentSquare.getPosition());
 		piecesTexture.loadFromFile("pieces.png");
 		piece.setTexture(&piecesTexture);
 		sf::Vector2u textureSize = piecesTexture.getSize();
@@ -47,9 +47,10 @@ public:
 	char id = 0;
 	sf::RectangleShape piece;
 	short value;
-	bool diagonalMovement;
-	bool linearMovement;
-	bool horsing;
+	bool diagonalMovement = false;
+	bool linearMovement = false;
+	bool horsing = false;
+	bool isKing = false;
 	int color;
 private:
 	float squareSize = 812.0f / 8;

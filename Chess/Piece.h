@@ -52,6 +52,9 @@ public:
 	bool horsing = false;
 	bool isKing = false;
 	int color;
+	std::vector<sf::RectangleShape> emptySquares;
+	std::vector<sf::RectangleShape> takingSquares;
+
 private:
 	float squareSize = 812.0f / 8;
 	sf::Texture piecesTexture;

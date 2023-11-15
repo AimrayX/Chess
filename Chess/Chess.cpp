@@ -84,12 +84,14 @@ int main()
 				ResizeView(window, view);
 				break;
 			case sf::Event::MouseButtonReleased:
-				game.isDragging = false;
-				game.setter = false;
-				game.release(sf::Mouse::getPosition(window), board);
-				break;
+				if (game.isDragging)
+				{
+					game.isDragging = false;
+					game.setter = false;
+					game.release(sf::Mouse::getPosition(window), board);
+					break;
+				}
 			}
-
 		}
 		
 

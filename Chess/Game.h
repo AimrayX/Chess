@@ -25,6 +25,7 @@ public:
 	{
 		alivePieces = { kw, kb, rb1, rb2, rw1, rw2, bw1, bw2, bb1, bb2, qw, qb};
 		gBoard = board;
+		updateLegalMoves();
 	}
 
 	~Game()
@@ -43,8 +44,6 @@ public:
 			bool pieceFound = false;
 			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				sf::Vector2f hall = gBoard[i][j].getPosition();
-				sf::Vector2f sall = it->getCurrentSquare().getPosition();
 				if (gBoard[i][j].getPosition() == it->getCurrentSquare().getPosition())
 				{
 					std::cout << "something on square stopping :" << i << " " << j << std::endl;
@@ -54,7 +53,7 @@ public:
 			}
 			if (pieceFound && it->color != activePiece->color)
 			{
-				result.push_back(gBoard[i][j]);
+				takingResult.push_back(gBoard[i][j]);
 				break;
 			}
 			else if (pieceFound && it->color == activePiece->color)
@@ -73,8 +72,6 @@ public:
 			bool pieceFound = false;
 			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				sf::Vector2f hall = gBoard[i][j].getPosition();
-				sf::Vector2f sall = it->getCurrentSquare().getPosition();
 				if (gBoard[i][j].getPosition() == it->getCurrentSquare().getPosition())
 				{
 					std::cout << "something on square stopping :" << i << " " << j << std::endl;
@@ -84,7 +81,7 @@ public:
 			}
 			if (pieceFound && it->color != activePiece->color)
 			{
-				result.push_back(gBoard[i][j]);
+				takingResult.push_back(gBoard[i][j]);
 				break;
 			}
 			else if (pieceFound && it->color == activePiece->color)
@@ -103,8 +100,6 @@ public:
 			bool pieceFound = false;
 			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				sf::Vector2f hall = gBoard[i][j].getPosition();
-				sf::Vector2f sall = it->getCurrentSquare().getPosition();
 				if (gBoard[i][j].getPosition() == it->getCurrentSquare().getPosition())
 				{
 					std::cout << "something on square stopping :" << i << " " << j << std::endl;
@@ -114,7 +109,7 @@ public:
 			}
 			if (pieceFound && it->color != activePiece->color)
 			{
-				result.push_back(gBoard[i][j]);
+				takingResult.push_back(gBoard[i][j]);
 				break;
 			}
 			else if (pieceFound && it->color == activePiece->color)
@@ -133,8 +128,6 @@ public:
 			bool pieceFound = false;
 			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				sf::Vector2f hall = gBoard[i][j].getPosition();
-				sf::Vector2f sall = it->getCurrentSquare().getPosition();
 				if (gBoard[i][j].getPosition() == it->getCurrentSquare().getPosition())
 				{
 					std::cout << "something on square stopping :" << i << " " << j << std::endl;
@@ -144,7 +137,7 @@ public:
 			}
 			if (pieceFound && it->color != activePiece->color)
 			{
-				result.push_back(gBoard[i][j]);
+				takingResult.push_back(gBoard[i][j]);
 				break;
 			}
 			else if (pieceFound && it->color == activePiece->color)
@@ -156,8 +149,9 @@ public:
 				result.push_back(gBoard[i][j]);
 			}
 		}
+		activePiece->emptySquares = result;
+		activePiece->takingSquares = takingResult;
 	}
-
 
 	void linearSearch()
 	{
@@ -181,7 +175,7 @@ public:
 			}
 			if (pieceFound && it->color != activePiece->color)
 			{
-				result.push_back(gBoard[i][y]);
+				takingResult.push_back(gBoard[i][y]);
 				break;
 			}
 			else if (pieceFound && it->color == activePiece->color)
@@ -211,7 +205,7 @@ public:
 			}
 			if (pieceFound && it->color != activePiece->color)
 			{
-				result.push_back(gBoard[i][y]);
+				takingResult.push_back(gBoard[i][y]);
 				break;
 			}
 			else if (pieceFound && it->color == activePiece->color)
@@ -241,7 +235,7 @@ public:
 			}
 			if (pieceFound && it->color != activePiece->color)
 			{
-				result.push_back(gBoard[x][i]);
+				takingResult.push_back(gBoard[x][i]);
 				break;
 			}
 			else if (pieceFound && it->color == activePiece->color)
@@ -271,7 +265,7 @@ public:
 			}
 			if (pieceFound && it->color != activePiece->color)
 			{
-				result.push_back(gBoard[x][i]);
+				takingResult.push_back(gBoard[x][i]);
 				break;
 			}
 			else if (pieceFound && it->color == activePiece->color)
@@ -283,6 +277,8 @@ public:
 				result.push_back(gBoard[x][i]);
 			}
 		}
+		activePiece->emptySquares = result;
+		activePiece->takingSquares = takingResult;
 	}
 
 	void kingSearch() {
@@ -291,223 +287,253 @@ public:
 		//horizontal search right
 		bool pieceFound = false;
 		std::vector<Piece>::iterator it;
-		for (it = alivePieces.begin(); it != alivePieces.end(); it++)
+		if (x + 1 < 8)
 		{
-			if (gBoard[x+1][y].getPosition() == it->getCurrentSquare().getPosition())
+			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				std::cout << "something on square stopping :" << x+1 << " " << y << std::endl;
-				if (it->color != activePiece->color)
+				if (gBoard[x + 1][y].getPosition() == it->getCurrentSquare().getPosition())
 				{
-					result.push_back(gBoard[x + 1][y]);
+					std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
+					if (it->color != activePiece->color)
+					{
+						takingResult.push_back(gBoard[x + 1][y]);
+					}
+					pieceFound = true;
+					break;
 				}
-				pieceFound = true;
-				break;
+
 			}
-			
-		}
-		if (!pieceFound)
-		{
-			result.push_back(gBoard[x+1][y]);
+			if (!pieceFound)
+			{
+				result.push_back(gBoard[x + 1][y]);
+			}
 		}
 		pieceFound = false;
-		for (it = alivePieces.begin(); it != alivePieces.end(); it++)
+		if (x + 1 < 8 && y + 1 < 8)
 		{
-			if (gBoard[x+1][y+1].getPosition() == it->getCurrentSquare().getPosition())
+			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
-				if (it->color != activePiece->color)
+				if (gBoard[x + 1][y + 1].getPosition() == it->getCurrentSquare().getPosition())
 				{
-					result.push_back(gBoard[x + 1][y+1]);
+					std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
+					if (it->color != activePiece->color)
+					{
+						takingResult.push_back(gBoard[x + 1][y + 1]);
+					}
+					pieceFound = true;
+					break;
 				}
-				pieceFound = true;
-				break;
-			}
 
-		}
-		if (!pieceFound)
-		{
-			result.push_back(gBoard[x + 1][y+1]);
+			}
+			if (!pieceFound)
+			{
+				result.push_back(gBoard[x + 1][y + 1]);
+			}
 		}
 		pieceFound = false;
-		for (it = alivePieces.begin(); it != alivePieces.end(); it++)
+		if (y + 1 < 8)
 		{
-			if (gBoard[x][y+1].getPosition() == it->getCurrentSquare().getPosition())
+			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
-				if (it->color != activePiece->color)
+				if (gBoard[x][y + 1].getPosition() == it->getCurrentSquare().getPosition())
 				{
-					result.push_back(gBoard[x][y+1]);
+					std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
+					if (it->color != activePiece->color)
+					{
+						takingResult.push_back(gBoard[x][y + 1]);
+					}
+					pieceFound = true;
+					break;
 				}
-				pieceFound = true;
-				break;
-			}
 
+			}
+			if (!pieceFound)
+			{
+				result.push_back(gBoard[x][y + 1]);
+			}
 		}
-		if (!pieceFound)
+		if (x - 1 > -1 && y + 1 < 8)
 		{
-			result.push_back(gBoard[x][y+1]);
+			pieceFound = false;
+			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
+			{
+				if (gBoard[x - 1][y + 1].getPosition() == it->getCurrentSquare().getPosition())
+				{
+					std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
+					if (it->color != activePiece->color)
+					{
+						takingResult.push_back(gBoard[x - 1][y + 1]);
+					}
+					pieceFound = true;
+					break;
+				}
+
+			}
+			if (!pieceFound)
+			{
+				result.push_back(gBoard[x - 1][y + 1]);
+			}
+		}
+		if (x - 1 > -1)
+		{
+			pieceFound = false;
+			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
+			{
+				if (gBoard[x - 1][y].getPosition() == it->getCurrentSquare().getPosition())
+				{
+					std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
+					if (it->color != activePiece->color)
+					{
+						takingResult.push_back(gBoard[x - 1][y]);
+					}
+					pieceFound = true;
+					break;
+				}
+
+			}
+			if (!pieceFound)
+			{
+				result.push_back(gBoard[x - 1][y]);
+			}
 		}
 		pieceFound = false;
-		for (it = alivePieces.begin(); it != alivePieces.end(); it++)
+		if (x - 1 > -1 && y - 1 > -1)
 		{
-			if (gBoard[x-1][y+1].getPosition() == it->getCurrentSquare().getPosition())
+			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
-				if (it->color != activePiece->color)
+				if (gBoard[x - 1][y - 1].getPosition() == it->getCurrentSquare().getPosition())
 				{
-					result.push_back(gBoard[x - 1][y+1]);
+					std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
+					if (it->color != activePiece->color)
+					{
+						takingResult.push_back(gBoard[x - 1][y - 1]);
+					}
+					pieceFound = true;
+					break;
 				}
-				pieceFound = true;
-				break;
-			}
 
-		}
-		if (!pieceFound)
-		{
-			result.push_back(gBoard[x - 1][y+1]);
+			}
+			if (!pieceFound)
+			{
+				result.push_back(gBoard[x - 1][y - 1]);
+			}
 		}
 		pieceFound = false;
-		for (it = alivePieces.begin(); it != alivePieces.end(); it++)
+		if (y - 1 > -1)
 		{
-			if (gBoard[x-1][y].getPosition() == it->getCurrentSquare().getPosition())
+			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
-				if (it->color != activePiece->color)
+				if (gBoard[x][y - 1].getPosition() == it->getCurrentSquare().getPosition())
 				{
-					result.push_back(gBoard[x-1][y]);
+					std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
+					if (it->color != activePiece->color)
+					{
+						takingResult.push_back(gBoard[x][y - 1]);
+					}
+					pieceFound = true;
+					break;
 				}
-				pieceFound = true;
-				break;
-			}
 
-		}
-		if (!pieceFound)
-		{
-			result.push_back(gBoard[x-1][y]);
+			}
+			if (!pieceFound)
+			{
+				result.push_back(gBoard[x][y - 1]);
+			}
 		}
 		pieceFound = false;
-		for (it = alivePieces.begin(); it != alivePieces.end(); it++)
+		if (x + 1 < 8 && y - 1 > -1)
 		{
-			if (gBoard[x-1][y-1].getPosition() == it->getCurrentSquare().getPosition())
+			for (it = alivePieces.begin(); it != alivePieces.end(); it++)
 			{
-				std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
-				if (it->color != activePiece->color)
+				if (gBoard[x + 1][y - 1].getPosition() == it->getCurrentSquare().getPosition())
 				{
-					result.push_back(gBoard[x-1][y-1]);
+					std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
+					if (it->color != activePiece->color)
+					{
+						takingResult.push_back(gBoard[x + 1][y - 1]);
+					}
+					pieceFound = true;
+					break;
 				}
-				pieceFound = true;
-				break;
-			}
 
-		}
-		if (!pieceFound)
-		{
-			result.push_back(gBoard[x-1][y-1]);
-		}
-		pieceFound = false;
-		for (it = alivePieces.begin(); it != alivePieces.end(); it++)
-		{
-			if (gBoard[x][y-1].getPosition() == it->getCurrentSquare().getPosition())
+			}
+			if (!pieceFound)
 			{
-				std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
-				if (it->color != activePiece->color)
-				{
-					result.push_back(gBoard[x][y-1]);
-				}
-				pieceFound = true;
-				break;
+				result.push_back(gBoard[x + 1][y - 1]);
 			}
-
 		}
-		if (!pieceFound)
-		{
-			result.push_back(gBoard[x][y-1]);
-		}
-		pieceFound = false;
-		for (it = alivePieces.begin(); it != alivePieces.end(); it++)
-		{
-			if (gBoard[x+1][y-1].getPosition() == it->getCurrentSquare().getPosition())
-			{
-				std::cout << "something on square stopping :" << x + 1 << " " << y << std::endl;
-				if (it->color != activePiece->color)
-				{
-					result.push_back(gBoard[x+1][y-1]);
-				}
-				pieceFound = true;
-				break;
-			}
-
-		}
-		if (!pieceFound)
-		{
-			result.push_back(gBoard[x+1][y-1]);
-		}
+		activePiece->emptySquares = result;
+		activePiece->takingSquares = takingResult;
 	}
 	
-	bool isLegalMove(sf::RectangleShape goal)
+	void updateLegalMoves()
 	{
 		// check if that square is accessible by the type of activePiece
 		// while it is doing the calculation in each direction on given attributes it should stop with further calculating in that direction
 		// and if its not friendly include that square otherwise -1 in that direction
-		bool finished = false;
-		if (activePiece != alivePieces.end())
+		for (activePiece = alivePieces.begin(); activePiece != alivePieces.end(); activePiece++)
 		{
+			result.clear();
+			takingResult.clear();
 			if (activePiece->diagonalMovement && activePiece->linearMovement)
 			{
-				result.clear();
 				diagonalSearch();
 				linearSearch();
-
 			}
 			else if (activePiece->diagonalMovement)
 			{
-				result.clear();
 				diagonalSearch();
 			}
 			else if (activePiece->linearMovement)
 			{
-				result.clear();
 				linearSearch();
-
 			}
 			else if (activePiece->isKing)
 			{
-				result.clear();
 				kingSearch();
 			}
 			else if (activePiece->horsing)
 			{
-				result.clear();
+
 			}
 			else
 			{
-				result.clear();
 
 			}
+			activePiece->emptySquares = result;
+			activePiece->takingSquares = takingResult;
 		}
-		
-		
+	}
+
+	bool isLegalMove(sf::RectangleShape goal)
+	{
 		//compare input move and possible moves
 		std::vector<sf::RectangleShape>::iterator it;
 		contr = false;
-		
-		for (it = result.begin(); it != result.end(); it++)
+
+		for (it = activePiece->emptySquares.begin(); it != activePiece->emptySquares.end(); it++)
 		{
-			
-			std::vector<Piece>::iterator it2;
-			for (it2 = alivePieces.begin(); it2 != alivePieces.end(); it2++)
-			{
-				if (it->getPosition() == goal.getPosition() && it2->getCurrentSquare().getPosition() == goal.getPosition())
-				{
-					pieceToBeTaken = it2;
-					contr = true;
-					return 1;
-				}
-				
-			}
 			if (it->getPosition() == goal.getPosition())
 			{
 				return 1;
+			}
+		}
+		for (it = activePiece->takingSquares.begin(); it != activePiece->takingSquares.end(); it++)
+		{
+			if (it->getPosition() == goal.getPosition())
+			{
+				std::vector<Piece>::iterator it2;
+				for (it2 = alivePieces.begin(); it2 != alivePieces.end(); it2++)
+				{
+					if (it2->getCurrentSquare().getPosition() == goal.getPosition())
+					{
+						pieceToBeTaken = it2;
+						contr = true;
+						return 1;
+					}
+					
+				}
+				
 			}
 		}
 		return 0;
@@ -548,7 +574,7 @@ public:
 				}
 			}
 		}
-		
+		updateLegalMoves();
 	}
 
 	void move(sf::Vector2i mousePos, const sf::RenderWindow& window)
@@ -613,15 +639,19 @@ public:
 	bool isDragging;
 	bool setter;
 	std::vector<sf::RectangleShape> result;
+	std::vector<sf::RectangleShape> takingResult;
 
 private:
 	std::vector<std::vector<sf::RectangleShape>> gBoard;
+	std::vector<sf::RectangleShape> attackedSquaresByWhite;
+	std::vector<sf::RectangleShape> attackedSquaresByBlack;
+
+	std::vector<std::vector<sf::RectangleShape>> freeSquares;
+
 	std::vector<Piece>::iterator activePiece;
 	std::vector<Piece> alivePieces;
 	std::vector<Piece>::iterator pieceToBeTaken;
-	float dx = 0.0f;
-	float dy = 0.0f;
-	float distance = 0.0f;
+
 	float posX;
 	float posY;
 };
